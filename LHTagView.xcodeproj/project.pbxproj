@@ -32,6 +32,8 @@
 		1867D11D1E2783FA00387128 /* libstdc++.6.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1867D11C1E2783FA00387128 /* libstdc++.6.tbd */; };
 		1867D1211E278F8F00387128 /* photo.png in Resources */ = {isa = PBXBuildFile; fileRef = 1867D1201E278F8F00387128 /* photo.png */; };
 		1867D1231E2870D400387128 /* example.png in Resources */ = {isa = PBXBuildFile; fileRef = 1867D1221E2870D400387128 /* example.png */; };
+		1867D12A1E28A92600387128 /* meinv.png in Resources */ = {isa = PBXBuildFile; fileRef = 1867D1291E28A92600387128 /* meinv.png */; };
+		1867D12C1E28AF7900387128 /* liangnv.png in Resources */ = {isa = PBXBuildFile; fileRef = 1867D12B1E28AF7900387128 /* liangnv.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +107,8 @@
 		1867D11C1E2783FA00387128 /* libstdc++.6.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.6.tbd"; path = "usr/lib/libstdc++.6.tbd"; sourceTree = SDKROOT; };
 		1867D1201E278F8F00387128 /* photo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = photo.png; sourceTree = "<group>"; };
 		1867D1221E2870D400387128 /* example.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = example.png; sourceTree = "<group>"; };
+		1867D1291E28A92600387128 /* meinv.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = meinv.png; sourceTree = "<group>"; };
+		1867D12B1E28AF7900387128 /* liangnv.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = liangnv.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -211,7 +215,9 @@
 				1867D1181E2780E700387128 /* CALayer+Extension.h */,
 				1867D1191E2780E700387128 /* CALayer+Extension.m */,
 				1867D0F01E277F0A00387128 /* LHTConfigs.h */,
+				1867D1291E28A92600387128 /* meinv.png */,
 				1867D1201E278F8F00387128 /* photo.png */,
+				1867D12B1E28AF7900387128 /* liangnv.png */,
 			);
 			path = LHTagView;
 			sourceTree = "<group>";
@@ -368,6 +374,8 @@
 				1867D0C61E2778DA00387128 /* LaunchScreen.storyboard in Resources */,
 				1867D1231E2870D400387128 /* example.png in Resources */,
 				1867D0C31E2778DA00387128 /* Assets.xcassets in Resources */,
+				1867D12C1E28AF7900387128 /* liangnv.png in Resources */,
+				1867D12A1E28A92600387128 /* meinv.png in Resources */,
 				1867D1211E278F8F00387128 /* photo.png in Resources */,
 				1867D0C11E2778DA00387128 /* Main.storyboard in Resources */,
 			);

@@ -35,6 +35,7 @@
     view1.modelBlock = ^(LHTagModel *model){
         NSLog(@"model1.left %f",model.Left);
     };
+    view1.dotColor = [UIColor cyanColor];
     view1.nameColor = [UIColor purpleColor];
     
     LHTagModel *model2 = [[LHTagModel alloc]init];
@@ -47,6 +48,7 @@
     view2.modelBlock = ^(LHTagModel *model){
         NSLog(@"model2.left %f",model.Left);
     };
+    view2.bgColor = [UIColor greenColor];
     
     LHTagModel *model3 = [[LHTagModel alloc]init];
     model3.name = @" 年会没中奖 ";

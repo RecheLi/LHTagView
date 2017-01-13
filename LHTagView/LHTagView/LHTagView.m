@@ -26,8 +26,11 @@
 //父视图
 @property (nonatomic, weak) UIImageView *parentImageView;
 
-//圆角视图
-@property (nonatomic, strong) UIView *dotLayer;
+//小圆视图
+@property (nonatomic, strong) UIView *dotView;
+
+//白色圆点
+@property (nonatomic, weak) CAShapeLayer *whiteLayer;
 
 //弧
 @property (nonatomic, strong) CAShapeLayer *shapeLayer;
@@ -45,16 +48,24 @@ const CGFloat kLHTagLabelPadding = 15.0;
 
 @implementation LHTagView
 
+- (CAShapeLayer *)shapeLayer {
+    if (!_shapeLayer) {
+        _shapeLayer = [CAShapeLayer layer];
+        _shapeLayer.lineWidth = (kLHTagBlackDotWidth-kLHTagWhiteDotWidth/2.0)/2.0;
+        _shapeLayer.lineCap = kCALineCapButt;
+        _shapeLayer.strokeColor = [[[UIColor blackColor]colorWithAlphaComponent:.5] CGColor];
+        _shapeLayer.fillColor = nil;
+    }
+    return _shapeLayer;
+}
+
 - (instancetype)initWithTagModel:(LHTagModel *)model
                        superview:(UIImageView *)imageView {
     self = [super init];
     if (self) {
-        self.userInteractionEnabled = YES;
-        self.backgroundColor = [UIColor clearColor];
+        _model = model;
         [imageView addSubview:self];
         _parentImageView = imageView;
-        _model = model;
-        self.height = kLHTagHeight;
         [self commonInit];
         [self mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(@(_model.Left));
@@ -67,34 +78,25 @@ const CGFloat kLHTagLabelPadding = 15.0;
     return self;
 }
 
-- (CAShapeLayer *)shapeLayer {
-    if (!_shapeLayer) {
-        _shapeLayer = [CAShapeLayer layer];
-        _shapeLayer.lineWidth = (kLHTagBlackDotWidth-kLHTagWhiteDotWidth/2.0)/2.0;
-        _shapeLayer.lineCap = kCALineCapButt;
-        _shapeLayer.strokeColor = [[[UIColor blackColor]colorWithAlphaComponent:.5] CGColor];
-        _shapeLayer.fillColor = nil;
-    }
-    return _shapeLayer;
-}
-
 - (void)drawRect:(CGRect)rect {
-    [self.dotLayer layoutIfNeeded];
-    
+    [self.dotView layoutIfNeeded];
     CGMutablePathRef pathRef = CGPathCreateMutable();
     CGPathAddArc(pathRef, &CGAffineTransformIdentity,
-                 _dotLayer.width/2.0, _dotLayer.height/2.0, (kLHTagBlackDotWidth-kLHTagWhiteDotWidth/2.0)/2.0, startAngle, endAngle, YES);
+                 _dotView.width/2.0, _dotView.height/2.0, (kLHTagBlackDotWidth-kLHTagWhiteDotWidth/2.0)/2.0, startAngle, endAngle, YES);
     self.shapeLayer.path = pathRef;
 }
 
 - (void)commonInit {
+    self.userInteractionEnabled = YES;
+    self.backgroundColor = [UIColor clearColor];
+    self.height = kLHTagHeight;
     startAngle = 0;
     endAngle = -M_PI*3/2;
     [self setupContainer];
     [self setupDots];
     [self setupNameLabel];
-    [self setupWeightLabel];
-    [self setLayout];
+    [self setupDetailLabel];
+    [self setupLayout];
     [self addGesture];
 }
 
@@ -119,31 +121,31 @@ const CGFloat kLHTagLabelPadding = 15.0;
     _nameLabel.width = nameSize.width;
 }
 
-- (void)setupWeightLabel {
+- (void)setupDetailLabel {
     _detailLabel = [UILabel new];
     _detailLabel.origin = CGPointMake(_nameLabel.left, _nameLabel.bottom+2.0);//2.0 is margintop
     _detailLabel.height = kLHTagLabelHeight;
     _detailLabel.numberOfLines = 1;
     _detailLabel.lineBreakMode = NSLineBreakByTruncatingTail;
     [_containerView addSubview:_detailLabel];
-    NSMutableAttributedString *attrWeight = [[NSMutableAttributedString alloc]initWithString:_model.detail attributes:[self defaultAttributes]];
-    CGSize weightSize = [attrWeight boundingRectWithSize:CGSizeMake(MAXFLOAT, kLHTagLabelHeight) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size;
-    _detailLabel.attributedText = attrWeight;
-    _detailLabel.size = weightSize;
+    NSMutableAttributedString *attrDetail = [[NSMutableAttributedString alloc]initWithString:_model.detail attributes:[self defaultAttributes]];
+    CGSize detailSize = [attrDetail boundingRectWithSize:CGSizeMake(MAXFLOAT, kLHTagLabelHeight) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size;
+    _detailLabel.attributedText = attrDetail;
+    _detailLabel.size = detailSize;
 }
 
 - (void)setupDots {
     //黑色圆点
-    _dotLayer = [UIView new];
-    [self addSubview:_dotLayer];
-    [_dotLayer mas_makeConstraints:^(MASConstraintMaker *make) {
+    _dotView = [UIView new];
+    [self addSubview:_dotView];
+    [_dotView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(@0);
         make.top.equalTo(@0);
         make.width.equalTo(@(kLHTagBlackDotWidth));
         make.height.equalTo(@(kLHTagBlackDotWidth));
     }];
-    _dotLayer.clipsToBounds = NO;
-    [_dotLayer.layer addSublayer:self.shapeLayer];
+    _dotView.clipsToBounds = NO;
+    [_dotView.layer addSublayer:self.shapeLayer];
 
     //白色圆点
     CAShapeLayer *whiteLayer = [CAShapeLayer layer];
@@ -151,10 +153,11 @@ const CGFloat kLHTagLabelPadding = 15.0;
     whiteLayer.origin = CGPointMake((kLHTagBlackDotWidth-kLHTagWhiteDotWidth)/2.0, (kLHTagBlackDotWidth-kLHTagWhiteDotWidth)/2.0);
     whiteLayer.cornerRadius = whiteLayer.height/2.0;
     whiteLayer.backgroundColor = [UIColor whiteColor].CGColor;
-    [_dotLayer.layer addSublayer:whiteLayer];
+    [_dotView.layer addSublayer:whiteLayer];
+    self.whiteLayer = whiteLayer;
 }
 
-- (void)setLayout {
+- (void)setupLayout {
     if (_nameLabel.width<_detailLabel.width) {
         _containerView.width = _detailLabel.width+kLHTagLabelPadding*2;
         _nameLabel.width = _detailLabel.width;
@@ -175,21 +178,19 @@ const CGFloat kLHTagLabelPadding = 15.0;
 
 - (void)addGesture {
     UIPanGestureRecognizer *panTagView =[[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(panTagView:)];
-    panTagView.minimumNumberOfTouches=1;
-    panTagView.maximumNumberOfTouches=1;
-    panTagView.delegate=self;
+    panTagView.minimumNumberOfTouches = 1;
+    panTagView.maximumNumberOfTouches = 1;
+    panTagView.delegate = self;
     [self addGestureRecognizer:panTagView];
     
-    UITapGestureRecognizer* tapTagView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapTagView:)];
-    tapTagView.numberOfTapsRequired=1;
-    tapTagView.numberOfTouchesRequired=1;
+    UITapGestureRecognizer *tapTagView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapTagView:)];
+    tapTagView.numberOfTapsRequired = 1;
+    tapTagView.numberOfTouchesRequired = 1;
     tapTagView.delegate = self;
     [self addGestureRecognizer:tapTagView];
 }
 
-/**
- *  标签移动
- */
+#pragma mark - 拖动标签
 - (void)panTagView:(UIPanGestureRecognizer *)sender {
     CGPoint point = [sender locationInView:_parentImageView];
     if (sender.state == UIGestureRecognizerStateBegan) {
@@ -203,10 +204,10 @@ const CGFloat kLHTagLabelPadding = 15.0;
     [self mas_updateConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(@(point.x-viewTagLeft));
         make.top.equalTo(@(point.y-weak_self.height/2));
-        if((point.x-viewTagLeft)<=0){
+        if((point.x-viewTagLeft) <= 0){
             make.left.equalTo(@0);
         }
-        if (point.y+weak_self.size.height/2 >= weak_self.parentImageView.height) {
+        if (point.y+weak_self.height/2 >= weak_self.parentImageView.height) {
             make.top.equalTo(@(weak_self.parentImageView.height-weak_self.height));
         }
         if (point.y-weak_self.size.height/2 <= 0) {
@@ -216,25 +217,24 @@ const CGFloat kLHTagLabelPadding = 15.0;
             make.left.equalTo(@(kScreenWidth-weak_self.width));
         }
     }];
-    _model.Left = self.frame.origin.x;
-    _model.Top = self.frame.origin.y;
+    _model.Left = self.origin.x;
+    _model.Top = self.origin.y;
     if (_modelBlock) {
         _modelBlock(_model);
     }
 }
 
-/**
- *点击标签翻转
- */
+#pragma mark - 点击标签翻转
 - (void)tapTagView:(UITapGestureRecognizer *)sender{
     [self setDotLayerDirection];
 }
 
+#pragma mark - 调整方向
 - (void)setDotLayerDirection {
     @weakify(self);
     if (_direction == LHTagDirectionLeftTop) { //当前方向左上
         //点击后转右上，更新右上约束
-        [_dotLayer mas_updateConstraints:^(MASConstraintMaker *make) {
+        [_dotView mas_updateConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(@(weak_self.width-kLHTagBlackDotWidth));
             make.top.equalTo(@0);
             make.width.equalTo(@(kLHTagBlackDotWidth));
@@ -246,7 +246,6 @@ const CGFloat kLHTagLabelPadding = 15.0;
             make.width.equalTo(@(weak_self.containerView.width));
             make.height.equalTo(@(kLHTagHeight-kLHTagBlackDotWidth/2.0));
         }];
-        
         [self mas_updateConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(@(weak_self.origin.x+weak_self.width-8));
             if (weak_self.right+weak_self.width-8 >= kScreenWidth) {
@@ -267,8 +266,7 @@ const CGFloat kLHTagLabelPadding = 15.0;
             make.width.equalTo(@(weak_self.containerView.width));
             make.height.equalTo(@(kLHTagHeight-kLHTagBlackDotWidth/2.0));
         }];
-        
-        [_dotLayer mas_updateConstraints:^(MASConstraintMaker *make) {
+        [_dotView mas_updateConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(@(weak_self.width-kLHTagBlackDotWidth));
             make.top.equalTo(@(weak_self.height-kLHTagBlackDotWidth));
             make.width.equalTo(@(kLHTagBlackDotWidth));
@@ -294,14 +292,12 @@ const CGFloat kLHTagLabelPadding = 15.0;
             make.width.equalTo(@(weak_self.containerView.width));
             make.height.equalTo(@(kLHTagHeight-kLHTagBlackDotWidth/2.0));
         }];
-        
-        [_dotLayer mas_updateConstraints:^(MASConstraintMaker *make) {
+        [_dotView mas_updateConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(@0);
             make.top.equalTo(@(weak_self.height-kLHTagBlackDotWidth));
             make.width.equalTo(@(kLHTagBlackDotWidth));
             make.height.equalTo(@(kLHTagBlackDotWidth));
         }];
-        
         [self mas_updateConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(@(weak_self.origin.x-weak_self.width+8));
             if (weak_self.origin.x-weak_self.width+8<=0) {
@@ -321,14 +317,12 @@ const CGFloat kLHTagLabelPadding = 15.0;
             make.width.equalTo(@(weak_self.containerView.width));
             make.height.equalTo(@(kLHTagHeight-kLHTagBlackDotWidth/2.0));
         }];
-        
-        [_dotLayer mas_updateConstraints:^(MASConstraintMaker *make) {
+        [_dotView mas_updateConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(@0);
             make.top.equalTo(@0);
             make.width.equalTo(@(kLHTagBlackDotWidth));
             make.height.equalTo(@(kLHTagBlackDotWidth));
         }];
-        
         [self mas_updateConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(@(weak_self.origin.x-weak_self.width+8));
             if (weak_self.origin.x-weak_self.width+8<=0) {
@@ -347,10 +341,11 @@ const CGFloat kLHTagLabelPadding = 15.0;
         _modelBlock(_model);
     }
     _model.Direction = _direction;
-    _model.Left = self.frame.origin.x;
-    _model.Top = self.frame.origin.y;
+    _model.Left = self.origin.x;
+    _model.Top = self.origin.y;
 }
 
+#pragma mark - 标签方向设置
 - (void)setDirection:(LHTagDirection)direction {
     _direction = direction;
     @weakify(self);
@@ -361,8 +356,7 @@ const CGFloat kLHTagLabelPadding = 15.0;
             make.width.equalTo(@(weak_self.containerView.width));
             make.height.equalTo(@(kLHTagHeight-kLHTagBlackDotWidth/2.0));
         }];
-        
-        [_dotLayer mas_updateConstraints:^(MASConstraintMaker *make) {
+        [_dotView mas_updateConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(@0);
             make.top.equalTo(@0);
             make.width.equalTo(@(kLHTagBlackDotWidth));
@@ -375,7 +369,7 @@ const CGFloat kLHTagLabelPadding = 15.0;
         _nameLabel.textAlignment = NSTextAlignmentLeft;
         _direction = LHTagDirectionLeftTop;
     } else if (_direction == LHTagDirectionRightTop) { //当前方向右上
-        [_dotLayer mas_updateConstraints:^(MASConstraintMaker *make) {
+        [_dotView mas_updateConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(@(weak_self.width-kLHTagBlackDotWidth));
             make.top.equalTo(@0);
             make.width.equalTo(@(kLHTagBlackDotWidth));
@@ -393,7 +387,6 @@ const CGFloat kLHTagLabelPadding = 15.0;
         _detailLabel.textAlignment = NSTextAlignmentRight;
         _nameLabel.textAlignment = NSTextAlignmentRight;
         _direction = LHTagDirectionRightTop;
-        
     } else if (_direction == LHTagDirectionRightBottom) { //当前方向右下
         //点击后转右下，更新右下约束
         [_containerView mas_updateConstraints:^(MASConstraintMaker *make) {
@@ -402,8 +395,7 @@ const CGFloat kLHTagLabelPadding = 15.0;
             make.width.equalTo(@(weak_self.containerView.width));
             make.height.equalTo(@(kLHTagHeight-kLHTagBlackDotWidth/2.0));
         }];
-        
-        [_dotLayer mas_updateConstraints:^(MASConstraintMaker *make) {
+        [_dotView mas_updateConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(@(weak_self.width-kLHTagBlackDotWidth));
             make.top.equalTo(@(weak_self.height-kLHTagBlackDotWidth));
             make.width.equalTo(@(kLHTagBlackDotWidth));
@@ -422,8 +414,7 @@ const CGFloat kLHTagLabelPadding = 15.0;
             make.width.equalTo(@(weak_self.containerView.width));
             make.height.equalTo(@(kLHTagHeight-kLHTagBlackDotWidth/2.0));
         }];
-        
-        [_dotLayer mas_updateConstraints:^(MASConstraintMaker *make) {
+        [_dotView mas_updateConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(@0);
             make.top.equalTo(@(weak_self.height-kLHTagBlackDotWidth));
             make.width.equalTo(@(kLHTagBlackDotWidth));
@@ -438,9 +429,11 @@ const CGFloat kLHTagLabelPadding = 15.0;
     }
 }
 
-- (NSDictionary *)defaultAttributes {
-    return @{NSForegroundColorAttributeName:[UIColor whiteColor],
-             NSFontAttributeName: [UIFont fontWithName:@"PingFangSC-Regular" size:14]};
+#pragma mark - setter
+- (void)setBgColor:(UIColor *)bgColor {
+    _bgColor = bgColor;
+    _containerView.backgroundColor = _bgColor;
+    _shapeLayer.strokeColor = _bgColor.CGColor;
 }
 
 - (void)setNameColor:(UIColor *)nameColor {
@@ -451,6 +444,17 @@ const CGFloat kLHTagLabelPadding = 15.0;
 - (void)setDetailColor:(UIColor *)detailColor {
     _detailColor = detailColor;
     _detailLabel.textColor = _detailColor;
+}
+
+- (void)setDotColor:(UIColor *)dotColor {
+    _dotColor = dotColor;
+    _whiteLayer.backgroundColor = _dotColor.CGColor;
+}
+
+#pragma mark - getter
+- (NSDictionary *)defaultAttributes {
+    return @{NSForegroundColorAttributeName:[UIColor whiteColor],
+             NSFontAttributeName: [UIFont fontWithName:@"PingFangSC-Regular" size:14]};
 }
 
 + (CGFloat)height {

@@ -24,9 +24,15 @@ typedef void(^LHTagHandleBlock)(LHTagModel *tagModel);
 
 @property (nonatomic, strong) LHTagModel *model;
 
+@property (nonatomic, strong) UIColor *bgColor;
+
 @property (nonatomic, strong) UIColor *nameColor;
 
 @property (nonatomic, strong) UIColor *detailColor;
+
+@property (nonatomic, strong) UIColor *dotColor;
+
+//@property (nonatomic, assign) BOOL animated;
 
 - (instancetype)initWithTagModel:(LHTagModel *)model
                        superview:(UIImageView *)imageView;

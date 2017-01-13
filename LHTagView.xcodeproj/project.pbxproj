@@ -31,6 +31,7 @@
 		1867D11A1E2780E700387128 /* CALayer+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 1867D1191E2780E700387128 /* CALayer+Extension.m */; };
 		1867D11D1E2783FA00387128 /* libstdc++.6.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1867D11C1E2783FA00387128 /* libstdc++.6.tbd */; };
 		1867D1211E278F8F00387128 /* photo.png in Resources */ = {isa = PBXBuildFile; fileRef = 1867D1201E278F8F00387128 /* photo.png */; };
+		1867D1231E2870D400387128 /* example.png in Resources */ = {isa = PBXBuildFile; fileRef = 1867D1221E2870D400387128 /* example.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,6 +104,7 @@
 		1867D1191E2780E700387128 /* CALayer+Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CALayer+Extension.m"; sourceTree = "<group>"; };
 		1867D11C1E2783FA00387128 /* libstdc++.6.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.6.tbd"; path = "usr/lib/libstdc++.6.tbd"; sourceTree = SDKROOT; };
 		1867D1201E278F8F00387128 /* photo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = photo.png; sourceTree = "<group>"; };
+		1867D1221E2870D400387128 /* example.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = example.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +157,7 @@
 		1867D0B51E2778DA00387128 /* LHTagView */ = {
 			isa = PBXGroup;
 			children = (
+				1867D1221E2870D400387128 /* example.png */,
 				1867D0E91E277DAA00387128 /* LHTagView */,
 				1867D0B91E2778DA00387128 /* AppDelegate.h */,
 				1867D0BA1E2778DA00387128 /* AppDelegate.m */,
@@ -363,6 +366,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1867D0C61E2778DA00387128 /* LaunchScreen.storyboard in Resources */,
+				1867D1231E2870D400387128 /* example.png in Resources */,
 				1867D0C31E2778DA00387128 /* Assets.xcassets in Resources */,
 				1867D1211E278F8F00387128 /* photo.png in Resources */,
 				1867D0C11E2778DA00387128 /* Main.storyboard in Resources */,

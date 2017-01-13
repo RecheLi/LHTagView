@@ -1,7 +1,7 @@
 # LHTagView
 简易的图片标签。
 
-![image](https://github.com/Cherishforever/LHTagView/raw/master/LHTagView/LHTagView/example.png)
+![image](https://raw.githubusercontent.com/Cherishforever/LHTagView/master/LHTagView/example.png)
 
 
 
